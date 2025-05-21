@@ -4,6 +4,18 @@ from langchain.embeddings import HuggingFaceEmbeddings  # Economiza em custos de
 from langchain.schema import Document
 import json
 from tqdm import tqdm
+import os
+import sys
+
+if len(sys.argv) < 2:
+    print("Uso: python script.py /caminho/para/dataset_artificial.jsonl")
+    sys.exit(1)
+
+caminho_dataset = sys.argv[1]
+
+if not os.path.isfile(caminho_dataset):
+    print(f"Arquivo não encontrado: {caminho_dataset}")
+    sys.exit(1)
 
 # 1. Usar embeddings locais para economizar em custos de API
 embeddings = HuggingFaceEmbeddings(
@@ -13,14 +25,20 @@ embeddings = HuggingFaceEmbeddings(
 
 # 2. Configurar cliente Chroma com persistência
 client = chromadb.PersistentClient(path="./chroma_db")
-collection = client.create_collection("suporte_tecnico")
+# Verificar se a coleção existe e obter/criar adequadamente
+existing_collections = [c.name for c in client.list_collections()]
+if "suporte_tecnico" not in existing_collections:
+    collection = client.create_collection("suporte_tecnico")
+else:
+    collection = client.get_collection("suporte_tecnico")
+
 
 # 3. Processar e inserir documentos em lotes (para evitar sobrecarga de memória)
 batch_size = 500
 all_documents = []
 
 # Carregar dados
-with open('dataset.jsonl', 'r') as f:
+with open(caminho_dataset, 'r') as f:
     json_lines = f.readlines()
 
 for i in tqdm(range(0, len(json_lines), batch_size)):
