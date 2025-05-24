@@ -1,6 +1,6 @@
 import chromadb
-from langchain.vectorstores import Chroma
-from langchain.embeddings import HuggingFaceEmbeddings
+from langchain_community.vectorstores import Chroma
+from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain.schema import Document
 import json
 from tqdm import tqdm
@@ -8,13 +8,13 @@ import os
 import sys
 
 if len(sys.argv) < 2:
-    print("Uso: python script.py /caminho/para/dataset_artificial.jsonl")
+    print("uso: python script.py /caminho/para/dataset_artificial.jsonl")
     sys.exit(1)
 
 caminho_dataset = sys.argv[1]
 
 if not os.path.isfile(caminho_dataset):
-    print(f"Arquivo não encontrado: {caminho_dataset}")
+    print(f"não encontrado: {caminho_dataset}")
     sys.exit(1)
 
 embeddings = HuggingFaceEmbeddings(
